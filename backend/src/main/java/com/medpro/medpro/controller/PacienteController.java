@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -25,28 +26,29 @@ import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("pacientes")
+@CrossOrigin(origins = "http://127.0.0.1:5500") // CORS AJUSTADO
 public class PacienteController {
-    
-    
+
     @Autowired
     private PacienteRepository pacienteRepository;
 
     @PostMapping
     @Transactional
-    public void cadastrar(@RequestBody DadosCadastroPaciente dados){
-       pacienteRepository.save(new Paciente(dados));
+    public void cadastrar(@RequestBody DadosCadastroPaciente dados) {
+        pacienteRepository.save(new Paciente(dados));
     }
 
     @GetMapping
-    public ResponseEntity <Page<DadosListagemPaciente>> listar(Pageable paginacao){
-        var page = pacienteRepository.findAll(paginacao)
-                    .map(DadosListagemPaciente::new);
+    public ResponseEntity<Page<DadosListagemPaciente>> listar(Pageable paginacao) {
+        // USANDO O FILTRO findAllByAtivoTrue PARA EVITAR ERROS
+        var page = pacienteRepository.findAllByAtivoTrue(paginacao)
+                .map(DadosListagemPaciente::new);
         return ResponseEntity.ok(page);
     }
 
     @PutMapping
     @Transactional
-    public ResponseEntity <DadosDetalhamentoPaciente> atualizar(@RequestBody @Valid DadosAtualizacaoPaciente dados) {
+    public ResponseEntity<DadosDetalhamentoPaciente> atualizar(@RequestBody @Valid DadosAtualizacaoPaciente dados) {
         var paciente = pacienteRepository.getReferenceById(dados.id());
         paciente.atualizarInformacoes(dados);
 
@@ -55,7 +57,7 @@ public class PacienteController {
 
     @DeleteMapping("/{id}")
     @Transactional
-    public ResponseEntity <Void> excluir(@PathVariable Long id) {
+    public ResponseEntity<Void> excluir(@PathVariable Long id) {
         var paciente = pacienteRepository.getReferenceById(id);
         paciente.excluir();
 
@@ -63,7 +65,7 @@ public class PacienteController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity <DadosDetalhamentoPaciente> detalhar(@PathVariable Long id) {
+    public ResponseEntity<DadosDetalhamentoPaciente> detalhar(@PathVariable Long id) {
         var paciente = pacienteRepository.getReferenceById(id);
 
         return ResponseEntity.ok(new DadosDetalhamentoPaciente(paciente));

@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MedPro - Agendamento e Gestão de Consultas</title>
+    <style>
+      /* ================================================= */
+      /* --- VARIÁVEIS DE COR: Lilás/Roxo --- */
+      /* ================================================= */
+      :root {
+        --primary-dark: #6c5ce7; /* Roxo principal */
+        --primary-light: #a29bfe; /* Lilás */
+        --bg: #f7f7ff; /* Fundo muito claro */
+        --card: #ffffff;
+        --text-dark: #2c3e50;
+        --text-muted: #95a5a6;
+        --success: #2ecc71;
+        --danger: #e74c3c;
+        --radius: 14px;
+        --shadow-md: 0 8px 25px rgba(108, 92, 231, 0.08);
+        --shadow-sm: 0 4px 12px rgba(0, 0, 0, 0.04);
+      }
+
+      /* ================================================= */
+      /* --- NAVBAR/HEADER (NOVO) --- */
+      /* ================================================= */
+      .navbar {
+        position: sticky;
+        top: 0;
+        z-index: 1000;
+        background-color: var(--card); /* Fundo branco */
+        border-bottom: 2px solid var(--primary-light);
+        box-shadow: 0 2px 10px rgba(108, 92, 231, 0.1);
+        padding: 15px 40px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+      .logo-brand {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        font-size: 1.5rem;
+        font-weight: 800;
+        color: var(--primary-dark);
+      }
+      .logo-icon {
+        width: 36px;
+        height: 36px;
+        border-radius: 8px;
+        background: linear-gradient(
+          135deg,
+          var(--primary-dark),
+          var(--primary-light)
+        );
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: 900;
+        font-size: 1.1rem;
+        box-shadow: 0 4px 12px rgba(108, 92, 231, 0.4);
+      }
+      .navbar-title {
+        font-size: 1.5rem;
+      }
+      .navbar-subtitle {
+        font-size: 0.8rem;
+        color: var(--text-muted);
+        font-weight: 500;
+      }
+
+      /* ================================================= */
+      /* --- GLOBAL E ESTRUTURA --- */
+      /* ================================================= */
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        padding: 0;
+        margin: 0; /* Removendo margem padrão do body */
+        background-color: var(--bg);
+        color: var(--text-dark);
+        line-height: 1.6;
+        -webkit-font-smoothing: antialiased;
+      }
+      .wrapper {
+        max-width: 1200px;
+        margin: 40px auto;
+        padding: 0 20px;
+      }
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 30px;
+      }
+      /* Títulos */
+      h1 {
+        /* MANTIDO POR COMPATIBILIDADE, MAS O TITULO PRINCIPAL ESTÁ NO NAVBAR */
+        display: none; /* Escondendo o H1 antigo */
+        color: var(--primary-dark);
+        font-size: 2.2rem;
+        margin-bottom: 25px;
+        border-bottom: 2px solid var(--primary-light);
+        padding-bottom: 10px;
+        text-shadow: 0 1px 1px rgba(0, 0, 0, 0.05);
+      }
+      h2 {
+        color: var(--primary-dark);
+        font-size: 1.4rem;
+        margin-bottom: 20px;
+        padding-bottom: 5px;
+        border-bottom: 1px dashed rgba(108, 92, 231, 0.2);
+      }
+
+      /* Cards */
+      .card {
+        background-color: var(--card);
+        padding: 25px;
+        border-radius: var(--radius);
+        box-shadow: var(--shadow-md);
+        transition: transform 0.2s ease;
+        border: 1px solid rgba(108, 92, 231, 0.1);
+      }
+      .card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 10px 30px rgba(108, 92, 231, 0.12);
+      }
+
+      /* ================================================= */
+      /* --- FORMULÁRIOS E INPUTS --- */
+      /* ================================================= */
+      .form-group {
+        margin-bottom: 20px;
+      }
+      label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 600;
+        color: var(--text-dark);
+        font-size: 0.95rem;
+      }
+      input[type="text"],
+      input[type="datetime-local"],
+      select {
+        width: 100%;
+        padding: 12px;
+        box-sizing: border-box;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        font-size: 1rem;
+        transition: border-color 0.3s, box-shadow 0.3s;
+      }
+      input:focus,
+      select:focus {
+        border-color: var(--primary-light);
+        box-shadow: 0 0 0 3px rgba(108, 92, 231, 0.2);
+        outline: none;
+      }
+
+      /* ================================================= */
+      /* --- BOTÕES --- */
+      /* ================================================= */
+      button {
+        padding: 12px 20px;
+        background-color: var(--primary-dark); /* Roxo para botão principal */
+        color: white;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        font-weight: 700;
+        transition: background-color 0.3s, transform 0.2s, box-shadow 0.3s;
+        box-shadow: 0 4px 15px rgba(108, 92, 231, 0.3);
+        margin-top: 10px;
+      }
+      button:hover {
+        background-color: var(--primary-light);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(108, 92, 231, 0.4);
+      }
+      /* Botão de Agendar (Usa o gradiente roxo) */
+      button[type="submit"]:not(.cancel-btn) {
+        background: linear-gradient(
+          90deg,
+          var(--primary-dark),
+          var(--primary-light)
+        );
+      }
+      /* Botão de Cancelar */
+      .cancel-btn {
+        background-color: var(--danger);
+        box-shadow: 0 4px 15px rgba(231, 76, 60, 0.3);
+      }
+      .cancel-btn:hover {
+        background-color: #c0392b;
+      }
+
+      /* ================================================= */
+      /* --- MENSAGENS E LISTAS --- */
+      /* ================================================= */
+      .message {
+        margin-top: 25px;
+        padding: 15px;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 0.95rem;
+        line-height: 1.4;
+      }
+      .success {
+        background-color: #e8f9ed;
+        color: var(--success);
+        border: 1px solid var(--success);
+      }
+      .error {
+        background-color: #fcebeb;
+        color: var(--danger);
+        border: 1px solid var(--danger);
+      }
+      .list-header {
+        font-weight: 700;
+        display: flex;
+        justify-content: space-between;
+        padding: 10px 0;
+        border-bottom: 2px solid var(--primary-light);
+        color: var(--primary-dark);
+        margin-bottom: 5px;
+      }
+      .item-list div {
+        display: flex;
+        justify-content: space-between;
+        padding: 12px 0;
+        border-bottom: 1px solid #f0f0f0;
+        transition: background-color 0.2s;
+      }
+      .item-list div:hover {
+        background-color: rgba(108, 92, 231, 0.05);
+      }
+      .item-list div:last-child {
+        border-bottom: none;
+      }
+
+      /* Lista de Consultas */
+      #consultasList > .list-item {
+        display: grid;
+        grid-template-columns: 0.5fr 1.5fr 1fr 1fr 1fr;
+        gap: 10px;
+        align-items: center;
+        padding: 12px 0;
+        border-bottom: 1px solid #f0f0f0;
+        font-size: 0.95rem;
+      }
+      #consultasList > .list-item:hover {
+        background-color: rgba(108, 92, 231, 0.05);
+      }
+
+      /* Estilos para Status */
+      .tag {
+        padding: 5px 10px;
+        border-radius: 6px;
+        font-weight: 700;
+        font-size: 0.85rem;
+        display: inline-block;
+      }
+      .tag.agendada {
+        background-color: rgba(46, 204, 113, 0.15); /* Cor suave de sucesso */
+        color: var(--success);
+      }
+      .tag.cancelada {
+        background-color: rgba(231, 76, 60, 0.15); /* Cor suave de perigo */
+        color: var(--danger);
+      }
+
+      /* Layout */
+      .agendar-section {
+        grid-column: 1 / span 2;
+      }
+      .full-width {
+        grid-column: 1 / span 2;
+      }
+
+      /* Responsividade */
+      @media (max-width: 900px) {
+        .container {
+          grid-template-columns: 1fr;
+        }
+        .agendar-section,
+        .full-width {
+          grid-column: 1 / span 1;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="navbar">
+      <div class="logo-brand">
+        <div class="logo-icon">MP</div>
+        <div>
+          <div class="navbar-title">MedPro</div>
+          <div class="navbar-subtitle">Agendamento & Gestão</div>
+        </div>
+      </div>
+      <div>
+        <button
+          onclick="loadAllData()"
+          style="
+            background-color: var(--primary-light);
+            box-shadow: none;
+            padding: 8px 15px;
+            font-size: 0.9rem;
+            margin-top: 0;
+          "
+        >
+          🔄 Recarregar Dados
+        </button>
+      </div>
+    </div>
+    <div class="wrapper">
+      <h1>MedPro | Gerenciamento de Consultas</h1>
+      <div class="container">
+        <div class="card agendar-section">
+          <h2>📅 Agendar Nova Consulta</h2>
+          <form id="agendamentoForm">
+            <div class="form-group">
+              <label for="idMedico">ID do Médico:</label>
+              <input
+                type="text"
+                id="idMedico"
+                required
+                placeholder="Digite o ID do médico (Ex: 1)"
+              />
+            </div>
+            <div class="form-group">
+              <label for="idPaciente">ID do Paciente:</label>
+              <input
+                type="text"
+                id="idPaciente"
+                required
+                placeholder="Digite o ID do paciente (Ex: 1)"
+              />
+            </div>
+            <div class="form-group">
+              <label for="dataHora"
+                >Data e Hora (Futuras, Seg-Sáb, 07h-18h):</label
+              >
+              <input type="datetime-local" id="dataHora" required />
+            </div>
+            <button type="submit">Agendar Consulta</button>
+          </form>
+          <div
+            id="agendamentoMessage"
+            class="message"
+            style="display: none"
+          ></div>
+        </div>
+
+        <div class="card">
+          <h2>🧑‍⚕️ Médicos Ativos</h2>
+          <div class="list-header">
+            <span>ID</span>
+            <span>Nome</span>
+            <span>Especialidade</span>
+          </div>
+          <div id="medicosList" class="item-list"></div>
+        </div>
+
+        <div class="card">
+          <h2>🚶 Pacientes (Listagem)</h2>
+          <div class="list-header">
+            <span>ID</span>
+            <span>Nome</span>
+            <span>CPF</span>
+          </div>
+          <div id="pacientesList" class="item-list"></div>
+        </div>
+
+        <div class="card">
+          <h2>❌ Cancelar Consulta</h2>
+          <form id="cancelamentoForm">
+            <div class="form-group">
+              <label for="idConsulta">ID da Consulta:</label>
+              <input
+                type="text"
+                id="idConsulta"
+                required
+                placeholder="ID da Consulta a ser cancelada (Ex: 10)"
+              />
+            </div>
+            <div class="form-group">
+              <label for="motivoCancelamento">Motivo do Cancelamento:</label>
+              <select id="motivoCancelamento" required>
+                <option value="PACIENTE_DESISTIU">Paciente Desistiu</option>
+                <option value="MEDICO_CANCELOU">Médico Cancelou</option>
+                <option value="OUTROS">Outros</option>
+              </select>
+            </div>
+            <button type="submit" class="cancel-btn">Cancelar Consulta</button>
+          </form>
+          <div
+            id="cancelamentoMessage"
+            class="message"
+            style="display: none"
+          ></div>
+        </div>
+
+        <div class="card full-width">
+          <h2>📋 Consultas Agendadas e Canceladas</h2>
+          <div
+            class="list-header"
+            style="
+              display: grid;
+              grid-template-columns: 0.5fr 1.5fr 1fr 1fr 1fr;
+              gap: 10px;
+            "
+          >
+            <span>ID</span>
+            <span>Data/Hora</span>
+            <span>ID Médico</span>
+            <span>ID Paciente</span>
+            <span>Status</span>
+          </div>
+          <div id="consultasList" class="item-list"></div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // *** ENDEREÇO DA API DO SPRING BOOT ***
+      // Configurado para o IP onde o backend está rodando
+      const API_BASE_URL = "http://10.110.12.34:8080";
+
+      function showMessage(elementId, text, isSuccess) {
+        const box = document.getElementById(elementId);
+        box.style.display = "block";
+        box.textContent = text;
+        box.className = isSuccess ? "message success" : "message error";
+      }
+
+      // Função genérica para carregar e renderizar dados
+      async function loadAndRenderData(endpoint, listId, renderRow) {
+        try {
+          // Aumenta o tamanho da paginação para buscar tudo de uma vez
+          const response = await fetch(`${API_BASE_URL}/${endpoint}?size=9999`);
+          if (!response.ok) throw new Error(`Erro ao buscar ${endpoint}`);
+
+          const data = await response.json();
+          const listElement = document.getElementById(listId);
+          listElement.innerHTML = "";
+
+          // Nota: O HTML original pressupõe que a resposta paginada
+          // é { "content": [...] }. Se você ajustou o Controller
+          // para retornar List<T>, mude 'data.content' para 'data'.
+          const listData = data.content || data;
+
+          listData.forEach((item) => {
+            listElement.innerHTML += renderRow(item);
+          });
+        } catch (error) {
+          console.error(`Erro ao carregar ${endpoint}:`, error);
+          document.getElementById(
+            listId
+          ).innerHTML = `<div style="padding: 10px; color: var(--danger); font-weight: 500;">Erro ao carregar dados. Verifique o console e o backend.</div>`;
+        }
+      }
+
+      // --- FUNÇÕES DE RENDERIZAÇÃO DE LINHAS ---
+
+      function renderMedicoRow(medico) {
+        return `<div><span>${medico.id}</span><span>${medico.nome}</span><span>${medico.especialidade}</span></div>`;
+      }
+
+      function renderPacienteRow(paciente) {
+        return `<div><span>${paciente.id}</span><span>${paciente.nome}</span><span>${paciente.cpf}</span></div>`;
+      }
+
+      function renderConsultaRow(consulta) {
+        const isCancelled = consulta.motivoCancelamento;
+        let statusTag, statusText;
+
+        if (isCancelled) {
+          statusTag = "cancelada";
+          statusText = `CANCELADA`;
+        } else {
+          statusTag = "agendada";
+          statusText = `AGENDADA`;
+        }
+
+        const statusHtml = `<span class="tag ${statusTag}">${statusText}</span>`;
+        const formattedDate = new Date(consulta.data).toLocaleString("pt-BR");
+
+        // Os IDs idMedico e idPaciente são necessários para agendar.
+        // Para listagem, o Spring Boot pode retornar 'medicoId' ou 'idMedico'.
+        const idMed = consulta.idMedico || consulta.medicoId || "-";
+        const idPac = consulta.idPaciente || consulta.pacienteId || "-";
+
+        return `
+                <div class="list-item">
+                    <span>${consulta.id}</span>
+                    <span>${formattedDate}</span>
+                    <span>${idMed}</span>
+                    <span>${idPac}</span>
+                    <span>${statusHtml}</span>
+                </div>
+            `;
+      }
+
+      // Carrega todas as listas
+      function loadAllData() {
+        loadAndRenderData("medicos", "medicosList", renderMedicoRow);
+        loadAndRenderData("pacientes", "pacientesList", renderPacienteRow);
+        loadAndRenderData("consultas", "consultasList", renderConsultaRow);
+      }
+
+      document.addEventListener("DOMContentLoaded", loadAllData);
+
+      // --- LÓGICA DE AGENDAMENTO (POST) ---
+
+      document
+        .getElementById("agendamentoForm")
+        .addEventListener("submit", async (event) => {
+          event.preventDefault();
+
+          const idMedico = document.getElementById("idMedico").value;
+          const idPaciente = document.getElementById("idPaciente").value;
+          const dataHoraInput = document.getElementById("dataHora").value;
+
+          // Formatando para o padrão ISO com segundos esperado pelo Spring Boot
+          const dataISO = dataHoraInput ? dataHoraInput + ":00" : null;
+
+          const dados = {
+            idMedico: parseInt(idMedico),
+            idPaciente: parseInt(idPaciente),
+            data: dataISO,
+          };
+
+          try {
+            const response = await fetch(`${API_BASE_URL}/consultas`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(dados),
+            });
+
+            const contentType = response.headers.get("content-type");
+            const isJson =
+              contentType && contentType.indexOf("application/json") !== -1;
+            const result = isJson
+              ? await response.json()
+              : await response.text();
+
+            if (response.ok) {
+              showMessage(
+                "agendamentoMessage",
+                `✅ Agendamento ID ${result.id} realizado com sucesso!`,
+                true
+              );
+              loadAllData();
+            } else {
+              let errorMessage = "Erro desconhecido ao agendar.";
+              if (isJson) {
+                if (result.message) {
+                  errorMessage = result.message;
+                } else if (result.errors && result.errors.length > 0) {
+                  // Erros de validação do Spring Boot
+                  errorMessage = result.errors
+                    .map((err) => err.mensagem)
+                    .join(" | ");
+                }
+              } else {
+                // Erros que não são JSON (ex: exceção do backend)
+                errorMessage = result.substring(0, 200) + "..."; // Pega o início da mensagem
+              }
+              showMessage(
+                "agendamentoMessage",
+                `❌ Falha no agendamento: ${errorMessage}`,
+                false
+              );
+            }
+          } catch (error) {
+            console.error("Erro de rede:", error);
+            showMessage(
+              "agendamentoMessage",
+              `❌ Erro de conexão. O backend está rodando em ${API_BASE_URL}?`,
+              false
+            );
+          }
+        });
+
+      // --- LÓGICA DE CANCELAMENTO (PUT) ---
+
+      document
+        .getElementById("cancelamentoForm")
+        .addEventListener("submit", async (event) => {
+          event.preventDefault();
+
+          const idConsulta = document.getElementById("idConsulta").value;
+          const motivoCancelamento =
+            document.getElementById("motivoCancelamento").value;
+
+          const dados = {
+            idConsulta: parseInt(idConsulta),
+            motivo: motivoCancelamento,
+          };
+
+          try {
+            const response = await fetch(`${API_BASE_URL}/consultas/cancelar`, {
+              method: "PUT",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(dados),
+            });
+
+            const contentType = response.headers.get("content-type");
+            const isJson =
+              contentType && contentType.indexOf("application/json") !== -1;
+            const result = isJson
+              ? await response.json()
+              : await response.text();
+
+            if (response.ok) {
+              showMessage(
+                "cancelamentoMessage",
+                `✅ Consulta ID ${result.id} cancelada. Motivo: ${result.motivoCancelamento}`,
+                true
+              );
+              loadAllData();
+            } else {
+              let errorMessage = "Erro desconhecido ao cancelar.";
+              if (isJson && result.message) {
+                errorMessage = result.message;
+              } else if (!isJson) {
+                errorMessage = result.substring(0, 200) + "...";
+              }
+              showMessage(
+                "cancelamentoMessage",
+                `❌ Falha ao cancelar: ${errorMessage}`,
+                false
+              );
+            }
+          } catch (error) {
+            console.error("Erro de rede:", error);
+            showMessage(
+              "cancelamentoMessage",
+              `❌ Erro de conexão. O backend está rodando?`,
+              false
+            );
+          }
+        });
+    </script>
+  </body>
+</html>

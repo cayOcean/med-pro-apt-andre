@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.util.UriComponentsBuilder;
-
+import org.springframework.web.bind.annotation.CrossOrigin;
 import com.medpro.medpro.model.dto.DadosAtualizacaoMedico;
 import com.medpro.medpro.model.dto.DadosCadastroMedico;
 import com.medpro.medpro.model.dto.DadosDetalhamentoMedico;
@@ -28,6 +28,7 @@ import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("medicos")
+@CrossOrigin(origins = "http://127.0.0.1:5500")
 public class MedicoController {
 
     @Autowired
@@ -35,7 +36,8 @@ public class MedicoController {
 
     @PostMapping
     @Transactional
-    public ResponseEntity <DadosDetalhamentoMedico> cadastrar(@RequestBody @Valid DadosCadastroMedico dados, UriComponentsBuilder uriBuilder) {
+    public ResponseEntity<DadosDetalhamentoMedico> cadastrar(@RequestBody @Valid DadosCadastroMedico dados,
+            UriComponentsBuilder uriBuilder) {
         var medico = new Medico(dados);
         medicoRepository.save(medico);
 
@@ -52,9 +54,9 @@ public class MedicoController {
     // }
 
     @GetMapping
-    public ResponseEntity <Page<DadosListagemMedico>> listar(Pageable paginacao) {
+    public ResponseEntity<Page<DadosListagemMedico>> listar(Pageable paginacao) {
         // return medicoRepository.findAll(paginacao)
-        //      .map(DadosListagemMedico::new);
+        // .map(DadosListagemMedico::new);
         var page = medicoRepository.findAllByAtivoTrue(paginacao)
                 .map(DadosListagemMedico::new);
         return ResponseEntity.ok(page);
@@ -62,7 +64,7 @@ public class MedicoController {
 
     @PutMapping
     @Transactional
-    public ResponseEntity <DadosDetalhamentoMedico> atualizar(@RequestBody @Valid DadosAtualizacaoMedico dados) {
+    public ResponseEntity<DadosDetalhamentoMedico> atualizar(@RequestBody @Valid DadosAtualizacaoMedico dados) {
         var medico = medicoRepository.getReferenceById(dados.id());
         medico.atualizarInformacoes(dados);
 
@@ -71,7 +73,7 @@ public class MedicoController {
 
     @DeleteMapping("/{id}")
     @Transactional
-    public ResponseEntity <Void> excluir(@PathVariable Long id) {
+    public ResponseEntity<Void> excluir(@PathVariable Long id) {
         var medico = medicoRepository.getReferenceById(id);
         medico.excluir();
 
@@ -79,7 +81,7 @@ public class MedicoController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity <DadosDetalhamentoMedico> detalhar(@PathVariable Long id) {
+    public ResponseEntity<DadosDetalhamentoMedico> detalhar(@PathVariable Long id) {
         var medico = medicoRepository.getReferenceById(id);
 
         return ResponseEntity.ok(new DadosDetalhamentoMedico(medico));

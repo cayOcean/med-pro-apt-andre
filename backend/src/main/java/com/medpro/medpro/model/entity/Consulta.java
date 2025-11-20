@@ -44,16 +44,13 @@ public class Consulta {
     @Enumerated(EnumType.STRING)
     private MotivoCancelamento motivoCancelamento;
 
-    // Construtor para o agendamento
     public Consulta(Medico medico, Paciente paciente, LocalDateTime data) {
         this.medico = medico;
         this.paciente = paciente;
         this.data = data;
     }
 
-    // Método para o cancelamento
     public void cancelar(MotivoCancelamento motivo) {
         this.motivoCancelamento = motivo;
     }
-
 }

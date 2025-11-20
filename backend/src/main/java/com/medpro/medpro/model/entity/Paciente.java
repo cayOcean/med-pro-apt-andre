@@ -9,22 +9,22 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Getter; // ALTERADO DE @Data PARA @Getter
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 @Entity
 @Table(name = "pacientes")
-@Data
+@Getter // CORREÇÃO: Apenas getter para evitar problemas de proxy JPA/Lombok
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(of = "id")
 public class Paciente {
-    
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    
+
     private String nome;
     private String email;
     private String telefone;
@@ -34,7 +34,7 @@ public class Paciente {
     private Endereco endereco;
 
     private boolean ativo;
-    
+
     public Paciente(DadosCadastroPaciente dados) {
         this.ativo = true;
         this.nome = dados.nome();
@@ -57,7 +57,7 @@ public class Paciente {
         }
     }
 
-    public void excluir(){
+    public void excluir() {
         this.ativo = false;
     }
 }
